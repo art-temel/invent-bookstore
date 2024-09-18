@@ -1,0 +1,33 @@
+// schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  name      String
+  borrowings Borrowing[] // This defines the one-to-many relationship with Borrowing
+}
+
+model Book {
+  id            Int         @id @default(autoincrement())
+  name         String
+  borrowings    Borrowing[] // This defines the one-to-many relationship with Borrowing
+}
+
+model Borrowing {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  bookId      Int
+  borrowedAt  DateTime @default(now())
+  returnedAt  DateTime?
+  userScore  Float
+  user        User     @relation(fields: [userId], references: [id]) // Foreign key to User
+  book        Book     @relation(fields: [bookId], references: [id]) // Foreign key to Book
+  @@unique([userId, bookId, returnedAt], name: "uniqueBorrowing")
+}
